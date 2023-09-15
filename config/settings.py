@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = config('ALLOW_HOSTS').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -39,15 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # frameworks
+    # libraries
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_filters',
     'drf_yasg',
-    'django_filters'
     
     # apps
     'applications.account',
-    'applications.film',
+    'applications.films',
 ]
 
 MIDDLEWARE = [
@@ -91,7 +92,7 @@ DATABASES = {
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT')
+        'PORT': config('DB_PORT'),
     }
 }
 
@@ -137,4 +138,23 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AUTH_USER_MODEL = 'account.CustomUser'
+AUTH_USER_MODEL = 'account.CustomUser'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
+    "AUTH_HEADER_TYPES": ("Bearer")
+}
